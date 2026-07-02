@@ -44,8 +44,8 @@ DOC_SEPARATOR = "=" * 40
 #   TEST_PDFS = []  ← runs all PDFs in CONTRACTS_DIR
 TEST_PDFS: list[str] = [
     "atlassian_customer_dpa.pdf",
-    # "data_processing_agreement.pdf",
-    # "employment_agreement.pdf",
+    "data_processing_agreement.pdf",
+    "employment_agreement.pdf",
 ]
 
 
@@ -135,22 +135,6 @@ def run_pipeline() -> None:
             all_pages.extend(clean_pages)
             print(f"  Loaded : {pdf_path.name}  ({len(clean_pages)} pages after cleaning)")
 
-            if pdf_path.name == "atlassian_customer_dpa.pdf":
-                for page in clean_pages[:3]:
-                    print("\n" + "=" * 80)
-                    print(f"CLEANED TEXT — {pdf_path.name} — PAGE {page['page']}")
-                    print("=" * 80)
-                    print(page["text"])
-                    print("=" * 80)
-
-            if pdf_path.name == "employment_agreement.pdf":
-                for page in clean_pages:
-                    if page["page"] == 16:
-                        print("\n" + "=" * 80)
-                        print("CLEANED TEXT — employment_agreement.pdf — PAGE 16")
-                        print("=" * 80)
-                        print(page["text"])
-                        print("=" * 80)
         except (FileNotFoundError, ValueError, RuntimeError) as exc:
             print(f"  [ERROR] Could not load '{pdf_path.name}': {exc}")
 
@@ -161,30 +145,6 @@ def run_pipeline() -> None:
     # --- Stage 3: Assemble pages into per-document structures ---
     documents = assembler.assemble_documents(all_pages)
     print(f"\nAssembled {len(documents)} document(s).\n")
-
-    # DEBUG: print cleaned text for atlassian_customer_dpa.pdf pages 1 and 2
-    for document in documents:
-        if document["document_name"] == "atlassian_customer_dpa.pdf":
-            for page in document["pages"]:
-                if page["page"] in (1, 2):
-                    print("\n" + "=" * 80)
-                    print(
-                        f"CLEANED TEXT — atlassian_customer_dpa.pdf — PAGE {page['page']}"
-                    )
-                    print("=" * 80)
-                    print(page["text"])
-                    print("=" * 80)
-
-    # DEBUG: print raw text of employment agreement page 16
-    for document in documents:
-        if document["document_name"] == "employment_agreement.pdf":
-            for page in document["pages"]:
-                if page["page"] == 16:
-                    print("\n" + "=" * 80)
-                    print("EMPLOYMENT AGREEMENT - PAGE 16")
-                    print("=" * 80)
-                    print(page["text"])
-                    print("=" * 80)
 
     # --- Stage 4: Chunk each document semantically ---
     all_chunks = chunker.chunk_documents(documents)

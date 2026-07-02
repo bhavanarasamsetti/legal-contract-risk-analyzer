@@ -273,7 +273,8 @@ class TextPreprocessor:
 
         Handles:
             - Multiple consecutive spaces or tabs → single space.
-            - Spaces immediately before or after a paragraph sentinel (``\\n\\n``).
+            - Blank lines that contain only whitespace → proper paragraph break.
+            - Spaces immediately before or after a paragraph break (``\\n\\n``).
             - Leading and trailing whitespace on the full string.
 
         Args:
@@ -284,6 +285,18 @@ class TextPreprocessor:
         """
         # Collapse runs of spaces/tabs (but not newlines) into a single space
         text = re.sub(r"[ \t]+", " ", text)
+
+        # Normalise blank lines that contain only whitespace into a proper
+        # paragraph break.  Multi-column PDFs (e.g. bilingual two-column
+        # employment agreements) produce lines like "\n    \n" — a newline,
+        # spaces for the column gutter, then another newline — instead of the
+        # "\n\n" the chunker expects.  After the space-collapse step above such
+        # lines become "\n \n"; this substitution converts them to "\n\n" so
+        # that text.split("\n\n") in the chunker correctly separates paragraphs.
+        # Single-column documents (Atlassian DPA, Data Processing Agreement)
+        # already use "\n\n" for paragraph breaks, so this substitution makes
+        # zero replacements on those documents.
+        text = re.sub(r"\n[ \t]+\n", "\n\n", text)
 
         # Remove spaces that crept in around paragraph breaks
         text = re.sub(r" *\n\n *", "\n\n", text)

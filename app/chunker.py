@@ -231,15 +231,37 @@ class LegalSemanticChunker:
                     cleaned.append(p)
             paragraphs = cleaned
 
-            print("\n" + "=" * 80)
-            print(f"DOCUMENT: {document_name}")
-            print(f"PAGE: {page_number}")
-            print(f"PARAGRAPHS FOUND: {len(paragraphs)}")
-            print("=" * 80)
-
-            for i, paragraph in enumerate(paragraphs, start=1):
-                print(f"\n--- Paragraph {i} ---")
-                print(repr(paragraph[:300]))
+            # Strip running-header clusters that PDF extraction splits across
+            # three consecutive paragraphs.  Pattern:
+            #   [Title fragment]  —  [Subtitle / company fragment]
+            #
+            # "Data Processing Agreement — Your Company" is extracted as:
+            #   D\nata Pro\ncessing Agreement\n \n—\n \nYour Company
+            # After _fix_line_breaks soft-wraps the broken words and
+            # _normalize_whitespace converts \n \n to \n\n, three separate
+            # paragraphs emerge on every page.  Neither the preprocessor nor
+            # _RUNNING_HEADER_RE (which targets a different document format)
+            # catches them.
+            #
+            # A standalone em-dash (— or –) is never valid legal paragraph
+            # content.  When found, the immediately preceding paragraph
+            # (the "Title" half) and the immediately following paragraph
+            # (the "Subtitle/Company" half) are discarded with it.  This
+            # handles any "Document Title — Party Name" running header
+            # without referencing any document-specific string.
+            demdashed: list[str] = []
+            skip_next = False
+            for p in paragraphs:
+                if skip_next:
+                    skip_next = False
+                    continue
+                if p in ("—", "–"):
+                    if demdashed:
+                        demdashed.pop()  # discard the preceding title fragment
+                    skip_next = True     # discard the following subtitle fragment
+                    continue
+                demdashed.append(p)
+            paragraphs = demdashed
 
             for paragraph in paragraphs:
                 heading = self._extract_section_heading(paragraph)
@@ -361,6 +383,30 @@ class LegalSemanticChunker:
                 #      is part of the heading format, not a content separator.
                 title_raw = re.sub(r"^\.?\s*(?:\([A-Za-z]+\)\s*[:\-]?\s*)?", "", title_raw)
 
+                # --- Page-break continuation guard ---
+                #
+                # A section-heading title NEVER begins with a lowercase letter
+                # in professionally drafted legal contracts (English, German,
+                # French, Spanish, Dutch …).  Heading noun phrases are always
+                # capitalised; German additionally capitalises every noun.
+                #
+                # When a sentence is cut by a page break immediately before a
+                # clause cross-reference such as "9.2", the continuation
+                # fragment lands at the top of the next page and looks like a
+                # heading to _HEADING_RE.  Its inline text (e.g. "schuldhaft
+                # verletzt, hat er…") starts with a lowercase word because it is
+                # mid-sentence body prose, not a title noun phrase.
+                #
+                # lstrip() guards against PDF extraction artefacts that
+                # occasionally prepend leading spaces or tabs before the text.
+                #
+                # Validated: zero legitimate headings begin with a lowercase
+                # letter across all three tested documents (Atlassian DPA,
+                # Employment Agreement, Generic DPA).
+                _first = title_raw.lstrip()
+                if _first and _first[0].islower():
+                    return None
+
                 # --- Sentence-body detection ---
                 #
                 # If the remainder of the line opens with a word that starts
@@ -371,18 +417,52 @@ class LegalSemanticChunker:
                 # personal pronouns, prepositions, or common legal-clause
                 # openers such as "Notwithstanding" or "Except for".
                 #
+                # The list covers both English and German because bilingual
+                # contracts (e.g. employment agreements) open body clauses
+                # with German articles ("Der/Die/Das …"), demonstratives
+                # ("Dieser/Diese …"), and prepositions ("Von/Bei/Für/Während
+                # …") that are never used as the first word of a section
+                # title in either language.
+                #
                 # Examples that must produce section_title = "":
-                #   "The parties agree that this DPA replaces …"     (the)
-                #   "This DPA and the Standard Contractual Clauses …" (this)
-                #   "Except for the changes made by this DPA …"      (except)
-                #   "Notwithstanding anything to the contrary …"     (notwithstanding)
-                #   "Any claims against Atlassian …"                 (any)
+                #   "The parties agree that this DPA replaces …"       (the)
+                #   "This DPA and the Standard Contractual Clauses …"  (this)
+                #   "Except for the changes made by this DPA …"        (except)
+                #   "Notwithstanding anything to the contrary …"       (notwithstanding)
+                #   "Any claims against Atlassian …"                   (any)
+                #   "In addition, the Employee is entitled to …"       (in addition)
+                #   "During the period of the noncompete obligation …" (during)
+                #   "Von dem Arbeitnehmer während des gewöhnlichen …"  (von — German)
+                #   "Dieser Vertrag unterliegt dem Recht der …"        (dieser — German)
+                #   "Der Arbeitnehmer erhält ein jährliches Gehalt …"  (der — German)
                 _sentence_opener = re.compile(
                     r"^(?:the|this|these|that|those|a|an|it|its|"
                     r"each|any|all|no\b|neither|"
                     r"notwithstanding|except|unless|"
                     r"subject\s+to|pursuant\s+to|in\s+accordance|"
-                    r"where|when|if|for|by|upon)\b",
+                    r"where|when|if|for|by|upon|"
+                    # ── additional English sentence-opening words/phrases ─────
+                    # Adverbs and prepositional phrases that begin body clauses
+                    # but never appear as the first word of a title noun phrase.
+                    r"during|additionally|furthermore|insofar|besides|following|"
+                    r"in\s+addition|on\s+top|in\s+due|at\s+the|in\s+cases?\b|"
+                    r"in\s+the\s+same|as\s+of|"
+                    # ── German definite articles ─────────────────────────────
+                    # "Der/Die/Das/Den/Dem/Des <Noun> …" always opens a German
+                    # noun phrase used as a subject or object — it is never the
+                    # first word of a section-heading title in any legal style.
+                    r"der|die|das|den|dem|des|"
+                    # ── German indefinite articles ───────────────────────────
+                    r"ein|eine|einem|einer|einen|"
+                    # ── German demonstratives ────────────────────────────────
+                    r"dieser|diese|dieses|diesem|diesen|"
+                    # ── German determiners ───────────────────────────────────
+                    r"alle|jeder|jede|jedes|jedem|keine?|"
+                    # ── German prepositions that open body clauses ───────────
+                    # These introduce prepositional phrases used as sentence
+                    # subjects/adverbials, not as heading noun phrases.
+                    r"von|vom|bei|beim|für|während|zur|zum|nach|im|"
+                    r"sofern|soweit|sowie|vorstehende|vorgenannte)\b",
                     re.IGNORECASE,
                 )
                 if _sentence_opener.match(title_raw):
@@ -430,6 +510,42 @@ class LegalSemanticChunker:
                         _stop = min(_stop, _cap_m.start())
 
                     section_title = title_raw[:_stop].rstrip(".:,").strip()
+
+                    # --- Long-body-sentence fallback ---
+                    #
+                    # Genuine legal sub-clause titles are short noun phrases.
+                    # If the extracted text exceeds 15 words it is almost
+                    # certainly body prose, regardless of whether _body_start
+                    # found a structural boundary:
+                    #
+                    #   • When _body_start fires early (colon, verb, comma+article)
+                    #     it already produces a short title — the word limit is
+                    #     never reached by legitimate titles anyway.
+                    #
+                    #   • When _body_start fires only via the terminal \.\s of
+                    #     the first full sentence (boundary comes very late), the
+                    #     truncated text is the entire sentence and slips past the
+                    #     old "_bm is None" guard.  Removing that guard fixes this.
+                    #
+                    # The threshold is set conservatively at 15 words to give
+                    # 4 words of safety margin above the longest legitimate
+                    # sub-clause title observed across all tested contracts
+                    # (Employment Agreement 5.3 EN: "Overtime work – up to 25
+                    # working hours per month -", 11 words).  This margin
+                    # accommodates future contracts where unusually verbose
+                    # sub-clause titles might reach 12–14 words.  Known false
+                    # titles that slip through _sentence_opener are ≥ 25 words,
+                    # well above the threshold.
+                    #
+                    # § headings remain exempt: they carry long descriptive
+                    # titles by convention (e.g. "§ 3 Remuneration in Case of
+                    # Sickness Obligations in case of Sickness / Absence").
+                    if (
+                        section_title
+                        and not section_token.startswith("§")
+                        and len(section_title.split()) > 15
+                    ):
+                        section_title = ""
 
                 # --- Post-extraction validation ---
 
@@ -484,7 +600,19 @@ class LegalSemanticChunker:
                 ):
                     return None
 
-                return section_token, section_title
+                # Normalise single-level numeric tokens: strip any trailing dot so
+                # that "1." is stored as "1".  Multi-level tokens (e.g. "2.1",
+                # "3.4.2") are unaffected because _HEADING_RE never captures a
+                # trailing dot for them.
+                #
+                # Without this, _infer_parent_section("1.1") returns "1" but the
+                # actual section is stored as "1.", making parent_section
+                # references unresolvable by downstream consumers.
+                #
+                # NOTE: the lowercase-list-marker guard above (^[a-z]+\.$)
+                # returns None before reaching this point, so its dot check is
+                # not disturbed by this normalisation.
+                return section_token.rstrip("."), section_title
 
             # First non-noise, non-heading line means no heading in this paragraph
             return None
