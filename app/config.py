@@ -1,9 +1,8 @@
 import os
 from dataclasses import dataclass, field
-from dotenv import load_dotenv
+from functools import lru_cache
 
-# Load environment variables from .env file at module import time
-load_dotenv()
+from dotenv import load_dotenv
 
 
 @dataclass
@@ -64,5 +63,29 @@ class Config:
             )
 
 
-# Module-level singleton — import this wherever configuration is needed
-config = Config()
+@lru_cache(maxsize=1)
+def get_config() -> Config:
+    """Return the application configuration singleton.
+
+    The ``Config`` object is constructed and validated on the first call and
+    then cached for the lifetime of the process.  Subsequent calls return the
+    same instance with no overhead.
+
+    Using a cached factory instead of a module-level eager singleton means
+    that importing ``app.config`` never triggers credential validation.
+    Validation only fires when a module explicitly requests configuration,
+    which keeps parser tests, CLI tools, and import-time side-effects clean.
+
+    To reset the cache in tests (e.g. to inject a different environment):
+
+        from app.config import get_config
+        get_config.cache_clear()
+
+    Returns:
+        The validated :class:`Config` instance.
+
+    Raises:
+        ValueError: If any required environment variable is missing.
+    """
+    load_dotenv()
+    return Config()
