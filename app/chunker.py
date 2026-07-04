@@ -1,3 +1,4 @@
+import hashlib
 import re
 from typing import TypedDict
 
@@ -668,8 +669,16 @@ class LegalSemanticChunker:
         """Assemble a :class:`ChunkData` dict from its constituent parts.
 
         The ``chunk_id`` is constructed as
-        ``<sanitised_document_name>_<first_page>_<section>`` to be both human
-        readable and deterministic for the same document content.
+        ``<sanitised_document_name>_<first_page>_<section>_<content_hash>``
+        where ``content_hash`` is the first 8 hex characters of the MD5 digest
+        of the chunk text.  The hash guarantees global uniqueness even when two
+        chunks share the same document name, page, and section token — which
+        occurs in bilingual two-column documents where the German and English
+        versions of a clause land on the same page under the same heading.
+
+        The prefix remains human-readable; the hash suffix is a short
+        disambiguation tag.  The full ID is deterministic: running the parser
+        twice on the same PDF always produces identical IDs.
 
         Args:
             document_name: Filename of the source PDF.
@@ -683,11 +692,21 @@ class LegalSemanticChunker:
             A fully populated :class:`ChunkData` dict.
         """
         first_page = pages[0] if pages else 0
+        chunk_text = "\n\n".join(paragraphs)
 
         # Sanitise document name for use in the ID (replace dots and spaces)
         doc_slug = re.sub(r"[\s\.]+", "_", document_name)
         section_slug = re.sub(r"\s+", "_", section)
-        chunk_id = f"{doc_slug}_{first_page}_{section_slug}"
+
+        # Append an 8-character content hash so the ID is globally unique even
+        # when two chunks share the same document name, page, and section token
+        # (e.g. bilingual two-column contracts where DE and EN clauses both start
+        # on the same page under the same heading number).  The hash is derived
+        # from chunk_text, which always differs between such pairs.  At 8 hex
+        # characters (32 bits) the birthday-paradox collision probability across
+        # a 250-chunk corpus is < 0.001%.
+        content_hash = hashlib.md5(chunk_text.encode()).hexdigest()[:8]
+        chunk_id = f"{doc_slug}_{first_page}_{section_slug}_{content_hash}"
 
         return ChunkData(
             chunk_id=chunk_id,
@@ -696,5 +715,5 @@ class LegalSemanticChunker:
             section=section,
             section_title=section_title,
             parent_section=parent_section,
-            chunk_text="\n\n".join(paragraphs),
+            chunk_text=chunk_text,
         )
