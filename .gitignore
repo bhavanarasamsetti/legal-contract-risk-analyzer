@@ -27,4 +27,5 @@ venv/
 # Jupyter
 .ipynb_checkpoints/
 
+# Generated BM25 index
 data/bm25_index.json
