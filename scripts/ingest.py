@@ -141,7 +141,7 @@ def _create_index(dimension: int, cloud: str, region: str) -> None:
             region=region,
         )
         print(f"  ✓  Index created  (dim={dimension}, cloud={cloud}, region={region})")
-    except ValueError as exc:
+    except Exception as exc:
         print(f"  ✗  {exc}")
         sys.exit(1)
 
@@ -193,17 +193,7 @@ def _run_parser(contracts_dir: Path) -> list[ChunkData]:
         n_pages = pages_by_doc.get(name, 0)
         print(f"  ✓  {name:<40}  {n_chunks:>4} chunks  ({n_pages} pages)")
 
-    unique_ids = len({c["chunk_id"] for c in all_chunks})
     print(f"\n  Total  : {len(all_chunks)} chunks across {len(documents)} document(s)")
-    if unique_ids < len(all_chunks):
-        # Bilingual documents (e.g. German/English employment agreements) produce
-        # two chunks per section on the same page, resulting in identical chunk_ids.
-        # Pinecone upsert will overwrite on duplicate IDs, so the index will contain
-        # unique_ids vectors rather than len(all_chunks).
-        print(
-            f"  Note   : {len(all_chunks) - unique_ids} bilingual duplicate ID(s) detected — "
-            f"index will contain {unique_ids} unique vectors after upsert."
-        )
     return all_chunks
 
 
@@ -256,26 +246,24 @@ def _upsert(
 
 
 def _verify(chunks: list[ChunkData]) -> None:
-    """Query index stats and confirm the vector count is consistent with the corpus.
+    """Query index stats and confirm the vector count matches the ingested corpus.
 
-    The expected count is the number of *unique* chunk IDs, not the total
-    number of chunks.  Bilingual documents produce two chunks per section
-    with the same ID; Pinecone overwrites on duplicate IDs so the final
-    vector count equals the unique-ID count.
+    Compares the index's ``total_vector_count`` against the number of chunks
+    that were upserted.  A mismatch is treated as a warning rather than a
+    hard failure because Pinecone serverless indexes can take a few seconds
+    to reflect a completed upsert in their stats endpoint.
     """
-    unique_ids = len({c["chunk_id"] for c in chunks})
+    expected = len(chunks)
     try:
         store = VectorStore()
         info = store.stats()
         actual = info.get("total_vector_count", "?")
-        if actual == unique_ids:
+        if actual == expected:
             print(f"  ✓  Index now contains {actual} vectors")
         else:
-            # A count mismatch can happen when the index is still indexing.
-            # It is not a hard failure — the vectors were accepted by Pinecone.
             print(
                 f"  ⚠   Index reports {actual} vectors "
-                f"(expected {unique_ids}) — may still be indexing"
+                f"(expected {expected}) — may still be indexing"
             )
     except Exception as exc:
         print(f"  ⚠   Could not verify index stats: {exc}")
@@ -323,7 +311,7 @@ def main() -> None:
 
     # ── Step 4: upsert ───────────────────────────────────────────────────────
     print(f"\n[5/5] Upserting to Pinecone  {_SEP}")
-    upserted = _upsert(chunks, vectors, show_progress=args.show_progress)
+    _upsert(chunks, vectors, show_progress=args.show_progress)
 
     # ── Step 5: verify ───────────────────────────────────────────────────────
     print(f"\n[+]   Verification  {_SEP}")
