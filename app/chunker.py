@@ -1,5 +1,6 @@
 import hashlib
 import re
+import unicodedata
 from typing import TypedDict
 
 from app.document_assembler import DocumentData
@@ -125,6 +126,31 @@ class ChunkData(TypedDict):
     section_title: str
     parent_section: str
     chunk_text: str
+
+
+def _ascii_slug(value: str, *, replace_dots: bool = False) -> str:
+    """Convert text into a deterministic ASCII-safe slug for chunk IDs."""
+    normalized = unicodedata.normalize("NFKD", value)
+    parts: list[str] = []
+
+    for char in normalized:
+        if char.isascii():
+            if char.isalnum():
+                parts.append(char)
+            elif char.isspace() or (replace_dots and char == "."):
+                parts.append("_")
+            else:
+                parts.append(char)
+        else:
+            ascii_replacement = char.encode("ascii", "ignore").decode("ascii")
+            if ascii_replacement:
+                parts.append(ascii_replacement)
+            else:
+                parts.append(f"u{ord(char):x}")
+
+    slug = "".join(parts)
+    slug = re.sub(r"_+", "_", slug).strip("_")
+    return slug or "x"
 
 
 class LegalSemanticChunker:
@@ -694,9 +720,10 @@ class LegalSemanticChunker:
         first_page = pages[0] if pages else 0
         chunk_text = "\n\n".join(paragraphs)
 
-        # Sanitise document name for use in the ID (replace dots and spaces)
-        doc_slug = re.sub(r"[\s\.]+", "_", document_name)
-        section_slug = re.sub(r"\s+", "_", section)
+        # Sanitise document name and section token for use in the ID while
+        # keeping the output deterministic and ASCII-safe for Pinecone.
+        doc_slug = _ascii_slug(document_name, replace_dots=True)
+        section_slug = _ascii_slug(section)
 
         # Append an 8-character content hash so the ID is globally unique even
         # when two chunks share the same document name, page, and section token

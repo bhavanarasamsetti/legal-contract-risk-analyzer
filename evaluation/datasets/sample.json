@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "description": "Manual evaluation set for the legal contract RAG pipeline. Ground-truth answers are reference summaries used by RAGAS; they should be updated as the corpus evolves.",
+  "samples": [
+    {
+      "question": "What are the data processor's obligations regarding personal data breach notification?",
+      "ground_truth": "The data processor must notify the data controller without undue delay after becoming aware of a personal data breach, providing sufficient information for the controller to meet its regulatory obligations.",
+      "expected_document": "data_processing_agreement.pdf"
+    },
+    {
+      "question": "What confidentiality obligations apply to customer data?",
+      "ground_truth": "The parties must protect confidential information and not disclose it to third parties except as permitted by the agreement or required by law.",
+      "expected_document": "atlassian_customer_dpa.pdf"
+    },
+    {
+      "question": "What are the termination or notice period requirements in the employment agreement?",
+      "ground_truth": "The employment relationship may be terminated subject to the notice periods and conditions specified in the termination provisions of the agreement.",
+      "expected_document": "employment_agreement.pdf"
+    },
+    {
+      "question": "What limitations of liability apply to the service provider?",
+      "ground_truth": "The agreement caps or excludes certain categories of liability, limiting the service provider's financial exposure for breaches or damages except where liability cannot be limited by law.",
+      "expected_document": "data_processing_agreement.pdf"
+    },
+    {
+      "question": "What sub-processing or onward transfer restrictions apply?",
+      "ground_truth": "The processor may only engage sub-processors with prior authorisation or general written authorisation from the controller, and must impose equivalent data protection obligations on sub-processors.",
+      "expected_document": "atlassian_customer_dpa.pdf"
+    }
+  ]
+}

@@ -91,7 +91,7 @@ class VectorStore:
     def __init__(
         self,
         namespace: str = "",
-        upsert_batch_size: int = 100,
+        upsert_batch_size: int = 10,
     ) -> None:
         """Connect to an existing Pinecone index.
 
@@ -251,14 +251,20 @@ class VectorStore:
             for chunk, vector in zip(chunks, vectors)
         ]
 
-        response = self._index.upsert(
-            vectors=pinecone_vectors,
-            namespace=self._namespace,
-            batch_size=self._upsert_batch_size,
-            show_progress=show_progress,
-        )
+        total_upserted = 0
 
-        return response.upserted_count
+        for i in range(0, len(pinecone_vectors), self._upsert_batch_size):
+            batch = pinecone_vectors[i:i + self._upsert_batch_size]
+
+            response = self._index.upsert(
+                vectors=batch,
+                namespace=self._namespace,
+            )
+            total_upserted += response.upserted_count
+
+        return total_upserted
+
+            
 
     def query(
         self,
