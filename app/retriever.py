@@ -140,4 +140,11 @@ class LegalRetriever:
             raise ValueError(f"top_k must be at least 1, got {top_k}.")
 
         query_vector = self._embedder.embed(query)
-        return self._store.query(vector=query_vector, top_k=top_k, filter=filter)
+
+        results = self._store.query(
+            vector=query_vector,
+            top_k=top_k,
+            filter=filter,
+        )
+
+        return results

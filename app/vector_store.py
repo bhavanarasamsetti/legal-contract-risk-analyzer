@@ -303,7 +303,6 @@ class VectorStore:
         """
         if top_k < 1:
             raise ValueError(f"top_k must be at least 1, got {top_k}.")
-
         response = self._index.query(
             vector=vector,
             top_k=top_k,

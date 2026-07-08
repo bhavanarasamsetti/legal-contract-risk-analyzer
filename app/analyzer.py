@@ -238,7 +238,6 @@ class RiskAnalyzer:
             top_k=self._top_k,
             filter=filter,
         )
-
         llm_response = self._llm.complete(question, context=sources)
 
         return AnalysisResult(

@@ -59,6 +59,7 @@ async def lifespan(application: FastAPI) -> AsyncGenerator[None, None]:
         shutdown phases.
     """
     application.state.analyzer = RiskAnalyzer(top_k=5)
+  
     try:
         yield
     finally:
