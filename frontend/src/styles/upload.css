@@ -1,0 +1,63 @@
+/* =====================================
+   HERO SECTION
+===================================== */
+
+.hero-section {
+
+    max-width: 1280px;
+
+    margin: 72px auto 64px;
+
+    padding: 0 32px;
+}
+
+.hero-badge {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    background: #F3ECFF;
+
+    color: #5B46B2;
+
+    padding: 10px 18px;
+
+    border-radius: 999px;
+
+    font-size: 15px;
+
+    font-weight: 700;
+}
+
+.hero-title {
+
+    margin-top: 28px;
+
+    font-size: 72px;
+
+    line-height: 1.02;
+
+    letter-spacing: -2px;
+
+    color: #111827;
+
+    font-weight: 800;
+
+    max-width: 760px;
+}
+
+.hero-description {
+
+    margin-top: 24px;
+
+    max-width: 760px;
+
+    color: #6B7280;
+
+    font-size: 20px;
+
+    line-height: 1.8;
+}

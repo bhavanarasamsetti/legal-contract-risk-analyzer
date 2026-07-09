@@ -1,0 +1,569 @@
+/* ==========================
+RISK SCORE CARD
+========================== */
+
+.risk-card{
+
+    background:#fff;
+
+    border:1px solid #E5E7EB;
+
+    border-radius:22px;
+
+    padding:32px;
+
+    box-shadow:0 4px 18px rgba(15,23,42,.05);
+}
+
+.card-label{
+
+    font-size:14px;
+
+    font-weight:700;
+
+    letter-spacing:2px;
+
+    color:#6B7280;
+
+    margin-bottom:28px;
+}
+
+.risk-circle{
+
+    position:relative;
+
+    width:180px;
+
+    height:180px;
+
+    margin:0 auto 26px;
+}
+
+.risk-circle svg{
+
+    width:180px;
+
+    height:180px;
+
+    transform:rotate(-90deg);
+}
+
+.circle-bg{
+
+    fill:none;
+
+    stroke:#EFEFEF;
+
+    stroke-width:8;
+}
+
+.circle-progress{
+
+    fill:none;
+
+    stroke:#C58B1A;
+
+    stroke-width:8;
+
+    stroke-linecap:round;
+
+    stroke-dasharray:289;
+
+    stroke-dashoffset:72;
+}
+
+.risk-score{
+
+    position:absolute;
+
+    inset:0;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+}
+
+.score{
+
+    font-size:54px;
+
+    font-weight:700;
+
+    color:#C58B1A;
+
+    line-height:1;
+}
+
+.outof{
+
+    margin-top:4px;
+
+    color:#9CA3AF;
+
+    font-size:20px;
+}
+
+.risk-pill{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:8px;
+
+    width:180px;
+
+    height:44px;
+
+    margin:0 auto;
+
+    border:1px solid #F4C84A;
+
+    border-radius:999px;
+
+    background:#FFF9E7;
+
+    color:#C58B1A;
+
+    font-weight:700;
+}
+
+.risk-divider{
+
+    height:1px;
+
+    background:#ECECEC;
+
+    margin:28px 0;
+}
+
+.risk-stats{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:16px;
+}
+
+.risk-stats div{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+}
+
+.risk-stats span{
+
+    color:#6B7280;
+
+    font-size:18px;
+}
+
+.high{
+
+    color:#C0392B;
+}
+
+.medium{
+
+    color:#C58B1A;
+}
+
+.low{
+
+    color:#1F8A5B;
+}
+/* ==========================
+AI SUMMARY
+========================== */
+
+.summary-card{
+
+    background:#fff;
+
+    border:1px solid #E5E7EB;
+
+    border-radius:22px;
+
+    padding:34px;
+
+    box-shadow:0 4px 18px rgba(15,23,42,.05);
+}
+
+.summary-title{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    margin-bottom:26px;
+}
+
+.summary-icon{
+
+    width:36px;
+
+    height:36px;
+
+    border-radius:10px;
+
+    background:#EFE9FF;
+
+    color:#5B46B2;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+}
+
+.summary-title span{
+
+    font-size:18px;
+
+    font-weight:700;
+
+    letter-spacing:2px;
+
+    color:#5B46B2;
+}
+
+.summary-text{
+
+    font-size:18px;
+
+    line-height:1.9;
+
+    color:#374151;
+}
+.results-grid{
+
+    display:grid;
+
+    grid-template-columns:340px 1fr;
+
+    gap:30px;
+
+    align-items:start;
+
+    margin-top:40px;
+}
+
+.results-left{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:28px;
+}
+
+.results-right{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:28px;
+}
+/* ==========================
+QUESTION CARD
+========================== */
+
+.result-card{
+
+    background:white;
+
+    border:1px solid #E5E7EB;
+
+    border-radius:22px;
+
+    padding:28px;
+
+    box-shadow:0 4px 18px rgba(15,23,42,.05);
+}
+
+.card-heading{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    margin-bottom:18px;
+
+    color:#5B46B2;
+
+    font-size:14px;
+
+    font-weight:700;
+
+    letter-spacing:2px;
+}
+
+.question-text{
+
+    font-size:18px;
+
+    line-height:1.7;
+
+    color:#111827;
+}
+/* ==========================
+SOURCES
+========================== */
+
+.source-item{
+
+    background:#F9FAFB;
+
+    border-radius:14px;
+
+    padding:14px;
+
+    margin-top:14px;
+}
+
+.source-item strong{
+
+    display:block;
+
+    margin-bottom:6px;
+
+    font-size:15px;
+}
+
+.source-item small{
+
+    color:#6B7280;
+
+    font-size:13px;
+}
+/* ==========================
+DETAILED ANALYSIS
+========================== */
+
+.analysis-card{
+
+    background:white;
+
+    border:1px solid #E5E7EB;
+
+    border-radius:22px;
+
+    padding:30px;
+
+    box-shadow:0 4px 18px rgba(15,23,42,.05);
+}
+
+.analysis-title{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    margin-bottom:24px;
+
+    color:#5B46B2;
+
+    font-weight:700;
+
+    letter-spacing:2px;
+
+    font-size:14px;
+}
+
+.finding{
+
+    border-radius:18px;
+
+    padding:22px;
+
+    margin-bottom:18px;
+}
+
+.finding-header{
+
+    display:flex;
+
+    gap:14px;
+
+    align-items:flex-start;
+
+    margin-bottom:16px;
+}
+
+.finding-header strong{
+
+    font-size:18px;
+
+    color:#111827;
+}
+
+.finding-header p{
+
+    margin-top:4px;
+
+    color:#6B7280;
+
+    font-size:14px;
+}
+
+.finding-body{
+
+    font-size:16px;
+
+    line-height:1.7;
+
+    color:#374151;
+}
+
+.high-risk{
+
+    background:#FEF2F2;
+
+    border:1px solid #FECACA;
+}
+
+.high-risk svg{
+
+    color:#DC2626;
+}
+
+.medium-risk{
+
+    background:#FFF7ED;
+
+    border:1px solid #FED7AA;
+}
+
+.medium-risk svg{
+
+    color:#EA580C;
+}
+
+.low-risk{
+
+    background:#ECFDF5;
+
+    border:1px solid #BBF7D0;
+}
+
+.low-risk svg{
+
+    color:#16A34A;
+}
+/* ==========================
+REFERENCED CLAUSES
+========================== */
+
+.clauses-card{
+
+    background:white;
+
+    border:1px solid #E5E7EB;
+
+    border-radius:22px;
+
+    padding:30px;
+
+    box-shadow:0 4px 18px rgba(15,23,42,.05);
+}
+
+.clauses-title{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    margin-bottom:24px;
+
+    color:#5B46B2;
+
+    font-weight:700;
+
+    letter-spacing:2px;
+
+    font-size:14px;
+}
+
+.clause-item{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:18px;
+
+    border-radius:16px;
+
+    border:1px solid #ECECEC;
+
+    margin-bottom:14px;
+
+    transition:.2s;
+
+    cursor:pointer;
+}
+
+.clause-item:hover{
+
+    background:#F9FAFB;
+}
+
+.clause-left h4{
+
+    margin:8px 0 4px;
+
+    font-size:17px;
+
+    color:#111827;
+}
+
+.clause-left p{
+
+    color:#6B7280;
+
+    font-size:14px;
+}
+
+.clause-section{
+
+    display:inline-block;
+
+    padding:5px 12px;
+
+    border-radius:999px;
+
+    background:#F3F4F6;
+
+    color:#6B7280;
+
+    font-size:12px;
+
+    font-weight:700;
+}
+
+.clause-item svg{
+
+    color:#5B46B2;
+}

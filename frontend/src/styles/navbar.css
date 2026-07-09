@@ -1,0 +1,116 @@
+.navbar{
+
+    width:100%;
+
+    height:84px;
+
+    background:#ffffff;
+
+    border-bottom:1px solid #e5e7eb;
+
+    position:sticky;
+
+    top:0;
+
+    z-index:100;
+}
+
+.navbar-container{
+
+    width:1400px;
+
+    max-width:96%;
+
+    height:100%;
+
+    margin:auto;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+}
+
+.navbar-logo{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+}
+
+.logo-box{
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:12px;
+
+    background:#5B46B2;
+
+    color:white;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+}
+
+.logo-text{
+
+    font-size:20px;
+
+    font-weight:700;
+
+    color:#111827;
+}
+
+.beta-badge{
+
+    background:#F3F4F6;
+
+    color:#9CA3AF;
+
+    padding:6px 12px;
+
+    border-radius:8px;
+
+    font-size:14px;
+
+    font-weight:700;
+}
+
+.navbar-links{
+
+    display:flex;
+
+    gap:42px;
+}
+
+.navbar-links a{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    color:#6B7280;
+
+    text-decoration:none;
+
+    font-size:18px;
+
+    font-weight:500;
+
+    transition:.2s;
+}
+
+.navbar-links a:hover{
+
+    color:#111827;
+}
