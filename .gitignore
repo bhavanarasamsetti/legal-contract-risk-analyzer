@@ -1,31 +1,66 @@
+# =========================
 # Python
+# =========================
 __pycache__/
 *.py[cod]
 *.egg-info/
+*.pyo
+*.pyd
 
-# Virtual environments
+# =========================
+# Virtual Environments
+# =========================
 venv/
-.env/
 .venv/
+env/
 
-# Environment variables
+# =========================
+# Environment Variables
+# =========================
 .env
+.env.*
 
+# =========================
+# Node / React
+# =========================
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# =========================
 # macOS
+# =========================
 .DS_Store
 
+# =========================
 # IDE
+# =========================
 .vscode/
 .idea/
 
+# =========================
 # Logs
+# =========================
 *.log
 
-# Python cache
+# =========================
+# Python Cache
+# =========================
 .pytest_cache/
+.mypy_cache/
 
+# =========================
 # Jupyter
+# =========================
 .ipynb_checkpoints/
 
-# Generated BM25 index
+# =========================
+# Generated Files
+# =========================
 data/bm25_index.json
+
+# =========================
+# Coverage
+# =========================
+.coverage
+htmlcov/
