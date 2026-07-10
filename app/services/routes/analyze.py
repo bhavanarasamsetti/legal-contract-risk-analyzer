@@ -110,10 +110,20 @@ class SourceReference(BaseModel):
     parent_section: str
     pages: list[int]
     score: float
+class Finding(BaseModel):
+    severity: str
+    title: str
+    description: str
 
+
+class Recommendation(BaseModel):
+    severity: str
+    title: str
+    description: str
 
 class AnalyzeResponse(BaseModel):
     """Response body for ``POST /analyze``.
+
 
     Attributes:
         question: The original question, echoed back for logging and
@@ -135,12 +145,22 @@ class AnalyzeResponse(BaseModel):
 
     question: str
     answer: str
+    risk_score: float
+    risk_level: str
+    confidence: int
+
+    high_risk: int
+    medium_risk: int
+    low_risk: int
+
+    findings: list[Finding]
+    recommendations: list[Recommendation]
     sources: list[SourceReference]
     model: str
     prompt_tokens: int
     completion_tokens: int
     total_tokens: int
-
+    contract_name: str
 
 # ---------------------------------------------------------------------------
 # Dependency
@@ -225,17 +245,34 @@ async def analyze_contract(
             detail=str(exc),
         ) from exc
     except Exception as exc:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An unexpected error occurred. Please try again later.",
+            detail=str(exc),
         ) from exc
 
     return AnalyzeResponse(
         question=result["question"],
         answer=result["answer"],
+        risk_score=result["risk_score"],
+        risk_level=result["risk_level"],
+        confidence=result["confidence"],
+        high_risk=result["high_risk"],
+        medium_risk=result["medium_risk"],
+        low_risk=result["low_risk"],
+        findings=[
+            Finding.model_validate(item)
+            for item in result["findings"]
+        ],
+        recommendations=[
+            Recommendation.model_validate(item)
+            for item in result["recommendations"]
+        ],
         sources=[SourceReference.model_validate(s) for s in result["sources"]],
         model=result["model"],
         prompt_tokens=result["prompt_tokens"],
         completion_tokens=result["completion_tokens"],
         total_tokens=result["total_tokens"],
+        contract_name=result["contract_name"],
     )

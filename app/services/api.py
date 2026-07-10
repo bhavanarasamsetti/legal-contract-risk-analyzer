@@ -22,11 +22,11 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from fastapi import FastAPI
-
+from app.services.routes import upload as upload_routes
 from app.analyzer import RiskAnalyzer
 from app.services.routes import analyze as analyze_routes
 from app.services.routes import health as health_routes
-
+from fastapi.middleware.cors import CORSMiddleware
 # ---------------------------------------------------------------------------
 # Application lifespan
 # ---------------------------------------------------------------------------
@@ -86,10 +86,19 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # ---------------------------------------------------------------------------
 # Mount routers
 # ---------------------------------------------------------------------------
 
 app.include_router(health_routes.router)
 app.include_router(analyze_routes.router)
+app.include_router(upload_routes.router)

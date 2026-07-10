@@ -1,90 +1,66 @@
-import { ShieldCheck, AlertTriangle } from "lucide-react";
+import { AlertTriangle, BarChart3 } from "lucide-react";
 
-function RiskScoreCard() {
+function RiskScoreCard({
+  score = 0,
+  level = "Low",
+  confidence,
+}) {
+
+ const percentage = score;
+
   return (
     <div className="risk-card">
 
-      <div className="card-label">
-        OVERALL RISK SCORE
+      <div className="risk-heading">
+
+        <BarChart3 size={18} />
+
+        <span>OVERALL RISK SCORE</span>
+
       </div>
 
-      <div className="risk-circle">
+      <div
+        className="risk-circle"
+        style={{
+          background: `conic-gradient(
+            #C58A25 ${percentage * 3.6}deg,
+            #F3F4F6 0deg
+          )`,
+        }}
+      >
 
-        <svg viewBox="0 0 120 120">
+        <div className="risk-circle-inner">
 
-          <circle
-            cx="60"
-            cy="60"
-            r="46"
-            className="circle-bg"
-          />
+          <h1>{score}</h1>
 
-          <circle
-            cx="60"
-            cy="60"
-            r="46"
-            className="circle-progress"
-          />
-
-        </svg>
-
-        <div className="risk-score">
-
-          <div className="score">
-            7.4
-          </div>
-
-          <div className="outof">
-            / 10
-          </div>
+          
 
         </div>
 
       </div>
 
-      <div className="risk-pill">
-
+      <div className={`risk-badge ${level.toLowerCase()}`}>
         <AlertTriangle size={16} />
 
-        Medium Risk
+        {level} Risk
 
       </div>
 
-      <div className="risk-divider"></div>
+      <div className="confidence-box">
 
-      <div className="risk-stats">
+    <div className="confidence-title">
+        Confidence
+    </div>
 
-        <div>
+    <div className="confidence-value">
+        {confidence}%
+    </div>
 
-          <span>High Risk</span>
+    <div className="confidence-text">
+        Based on retrieved contract evidence.
+    </div>
 
-          <strong className="high">
-            1 clause
-          </strong>
-
-        </div>
-
-        <div>
-
-          <span>Medium Risk</span>
-
-          <strong className="medium">
-            2 clauses
-          </strong>
-
-        </div>
-
-        <div>
-
-          <span>Low Risk</span>
-
-          <strong className="low">
-            1 clause
-          </strong>
-
-        </div>
-
-      </div>
+</div>
 
     </div>
   );

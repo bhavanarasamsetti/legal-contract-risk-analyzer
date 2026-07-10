@@ -1,34 +1,12 @@
-import { FileText, ExternalLink } from "lucide-react";
+import { FileText } from "lucide-react";
 
-function ReferencedClauses() {
-
-  const clauses = [
-
-    {
-      section: "Section 9.1",
-      title: "Confidentiality Obligations",
-      page: "Page 12",
-    },
-
-    {
-      section: "Section 9.2",
-      title: "Return of Company Property",
-      page: "Page 12",
-    },
-
-    {
-      section: "Section 8.3",
-      title: "Termination Conditions",
-      page: "Page 9",
-    },
-
-  ];
+function ReferencedClauses({ sources = [] }) {
 
   return (
 
     <div className="clauses-card">
 
-      <div className="clauses-title">
+      <div className="clauses-heading">
 
         <FileText size={18} />
 
@@ -36,40 +14,57 @@ function ReferencedClauses() {
 
       </div>
 
-      {clauses.map((clause,index)=>(
+      {sources.length === 0 ? (
 
-        <div
-          key={index}
-          className="clause-item"
-        >
+        <p className="empty-text">
 
-          <div className="clause-left">
+          No clauses referenced.
 
-            <div className="clause-section">
+        </p>
 
-              {clause.section}
+      ) : (
+
+        sources.map((source, index) => (
+
+          <div
+            className="clause-card"
+            key={index}
+          >
+
+            <div className="clause-top">
+
+              <div className="clause-section">
+
+                Section {source.section}
+
+              </div>
+
+              <div className="clause-page">
+
+                Page {source.pages.join(", ")}
+
+              </div>
 
             </div>
 
-            <h4>
+            <h3>
 
-              {clause.title}
+              {source.section_title ||
+                "Contract Clause"}
 
-            </h4>
+            </h3>
 
             <p>
 
-              {clause.page}
+              {source.document_name}
 
             </p>
 
           </div>
 
-          <ExternalLink size={18} />
+        ))
 
-        </div>
-
-      ))}
+      )}
 
     </div>
 

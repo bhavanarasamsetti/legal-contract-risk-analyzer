@@ -1,6 +1,7 @@
 import "../styles/upload.css";
 
 function UploadCard() {
+  
   return (
     <section className="hero-section">
 
@@ -9,18 +10,21 @@ function UploadCard() {
       </div>
 
       <h1 className="hero-title">
-        AI-Powered Legal
-        <br />
-        Contract Review
+       AI Legal Contract Analyzer
       </h1>
 
       <p className="hero-description">
-        Analyze legal contracts using Retrieval-Augmented Generation (RAG).
-        <br />
-        Ask natural language questions and receive grounded answers with
-        cited contract clauses.
+       Analyze legal contracts with AI, identify legal risks, and receive evidence-backed answers with cited contract clauses.
       </p>
+<div className="hero-tags">
 
+    <span>GPT-4o-mini</span>
+
+    <span>Pinecone</span>
+
+    <span>Hybrid Search</span>
+
+</div>
     </section>
   );
 }

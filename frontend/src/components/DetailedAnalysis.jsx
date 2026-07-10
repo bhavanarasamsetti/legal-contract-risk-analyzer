@@ -4,88 +4,63 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-function DetailedAnalysis() {
-
-  const findings = [
-
-    {
-      level: "High",
-      color: "high-risk",
-      icon: <AlertTriangle size={20} />,
-      title: "Broad Confidentiality Obligations",
-      text:
-        "The confidentiality clause extends for three years after employment and applies to a wide range of business information.",
-    },
-
-    {
-      level: "Medium",
-      color: "medium-risk",
-      icon: <AlertCircle size={20} />,
-      title: "Return of Company Documents",
-      text:
-        "Employees must return all confidential documents and electronic records immediately upon termination.",
-    },
-
-    {
-      level: "Low",
-      color: "low-risk",
-      icon: <CheckCircle2 size={20} />,
-      title: "GDPR Compliance",
-      text:
-        "The agreement references GDPR obligations and employee responsibility when handling personal data.",
-    },
-
-  ];
-
+function DetailedAnalysis({ findings = [] }) {
   return (
-
     <div className="analysis-card">
 
-      <div className="analysis-title">
-
+      <div className="analysis-heading">
         <AlertTriangle size={18} />
-
-        <span>DETAILED ANALYSIS</span>
-
+        <span>RECOMMENDATIONS</span>
       </div>
 
-      {findings.map((item,index)=>(
+      {findings.map((item, index) => {
 
-        <div
-          key={index}
-          className={`finding ${item.color}`}
-        >
+        const severity = (item.severity || "Low").toLowerCase();
 
-          <div className="finding-header">
+        const Icon =
+          severity === "high"
+            ? AlertTriangle
+            : severity === "medium"
+            ? AlertCircle
+            : CheckCircle2;
 
-            {item.icon}
+        return (
 
-            <div>
+          <div
+            key={index}
+            className={`recommendation-card ${severity}`}
+          >
 
-              <strong>
-                {item.title}
-              </strong>
+            <div className="recommendation-header">
 
-              <p>{item.level} Risk</p>
+              <div className="recommendation-left">
+
+                <Icon size={20} />
+
+                <div>
+
+                  <h3>{item.title}</h3>
+
+                  <span className={`severity-pill ${severity}`}>
+                    {item.severity}
+                  </span>
+
+                </div>
+
+              </div>
 
             </div>
 
-          </div>
-
-          <div className="finding-body">
-
-            {item.text}
+            <p>{item.description}</p>
 
           </div>
 
-        </div>
+        );
 
-      ))}
+      })}
 
     </div>
-
   );
-
 }
 
 export default DetailedAnalysis;

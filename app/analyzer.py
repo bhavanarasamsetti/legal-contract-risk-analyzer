@@ -31,9 +31,27 @@ Typical usage::
 
 from typing import TypedDict
 
+# NOTE: do not import 'trace' (e.g. from numpy) - we use 'trace' as the
+# context variable from langfuse.start_as_current_observation().
+
 from app.llm import LegalContractLLM
 from app.retriever import LegalRetriever
 from app.vector_store import QueryResult
+from app.langfuse_client import langfuse
+
+# ---------------------------------------------
+# NEW TYPES
+# ---------------------------------------------
+
+class Finding(TypedDict):
+    severity: str
+    title: str
+    description: str
+
+
+class Recommendation(TypedDict):
+    title: str
+    description: str
 
 
 # ---------------------------------------------------------------------------
@@ -73,11 +91,26 @@ class AnalysisResult(TypedDict):
 
     question: str
     answer: str
+
+    risk_score: float
+    risk_level: str
+    confidence: int
+    high_risk: int
+    medium_risk: int
+    low_risk: int
+
+    findings: list[Finding]
+
+    recommendations: list[Recommendation]
+
     sources: list[QueryResult]
+
     model: str
+
     prompt_tokens: int
     completion_tokens: int
     total_tokens: int
+    contract_name: str
 
 
 # ---------------------------------------------------------------------------
@@ -169,6 +202,7 @@ class RiskAnalyzer:
         self._retriever = retriever or LegalRetriever(namespace=namespace)
         self._llm = llm or LegalContractLLM()
 
+    
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
@@ -232,20 +266,82 @@ class RiskAnalyzer:
         """
         if not question or not question.strip():
             raise ValueError("question must not be empty or blank.")
+        with langfuse.start_as_current_observation(
+            name="Contract Analysis",
+            as_type="chain",
+            input={
+                "question": question,
+                "filter": filter,
+            },
+        ) as trace:
+            sources = self._retriever.retrieve(
+                question,
+                top_k=self._top_k,
+                filter=filter,
+            )
 
-        sources = self._retriever.retrieve(
-            question,
-            top_k=self._top_k,
-            filter=filter,
-        )
-        llm_response = self._llm.complete(question, context=sources)
+            llm_response = self._llm.complete(question, context=sources)
+            try:
+                risk_score = int(llm_response.get("risk_score", 50))
+                risk_score = max(0, min(100, risk_score))
+            except (ValueError, TypeError):
+                risk_score = 50
+
+            if risk_score < 40:
+                risk_level = "Low"
+            elif risk_score < 70:
+                risk_level = "Medium"
+            else:
+                risk_level = "High"
+
+            confidence = llm_response["confidence"]
+            findings = llm_response["findings"]
+            recommendations = llm_response["recommendations"]
+            high = len([f for f in findings if f["severity"] == "High"])
+            medium = len([f for f in findings if f["severity"] == "Medium"])
+            low = len([f for f in findings if f["severity"] == "Low"])
+            contract_name = (
+                sources[0]["document_name"] if sources else "Unknown Contract"
+            )
+            unique_sources = []
+            seen = set()
+
+            for source in sources:
+                key = (
+                    source["document_name"],
+                    source["section"],
+                    tuple(source["pages"]),
+                )
+
+                if key not in seen:
+                    seen.add(key)
+                    unique_sources.append(source)
+
+            sources = unique_sources
+            trace.update(
+                output={
+                    "risk_score": risk_score,
+                    "risk_level": risk_level,
+                    "confidence": confidence,
+                    "contract": contract_name,
+                }
+            )
 
         return AnalysisResult(
             question=question,
-            answer=llm_response["content"],
+            answer=llm_response["answer"],
+            risk_score=float(risk_score),
+            risk_level=risk_level,
+            confidence=confidence,
+            high_risk=high,
+            medium_risk=medium,
+            low_risk=low,
+            findings=findings,
+            recommendations=recommendations,
             sources=sources,
             model=llm_response["model"],
             prompt_tokens=llm_response["prompt_tokens"],
             completion_tokens=llm_response["completion_tokens"],
             total_tokens=llm_response["total_tokens"],
+            contract_name=contract_name,
         )

@@ -1,36 +1,48 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, ChevronRight, Zap } from "lucide-react";
-import { analyzeContract } from "../services/api";
+import {
+  Search,
+  ChevronRight,
+  Zap,
+} from "lucide-react";
+import { analyzeContract} from "../services/api";
 import "../styles/question.css";
 
 const sampleQuestions = {
   "employment_agreement.pdf": [
     "Summarize this employment agreement.",
-    "What confidentiality rules must the employee follow?",
-    "What happens when the employee leaves the company?",
+    "What confidentiality obligations must the employee follow?",
+    "What legal risks should I review before signing this employment agreement?"
   ],
 
-  "data_processing_agreement.pdf": [
-    "How should a data breach be handled?",
-    "What are the company's GDPR responsibilities?",
-    "What security measures protect personal data?",
-  ],
+ "data_processing_agreement.pdf": [
+  "Summarize this data processing agreement.",                  
+  "What GDPR compliance obligations are included?",             
+  "What are the biggest legal and liability risks in this agreement?" 
+],
 
-  "atlassian_customer_dpa.pdf": [
-    "What happens if a security incident occurs?",
-    "How does Atlassian protect customer data?",
-    "Summarize the main privacy and compliance requirements.",
-  ],
+ "atlassian_customer_dpa.pdf": [
+  "Summarize this Data Processing Addendum.",                   
+  "What customer data protection responsibilities are included?", 
+  "What security, liability, and compliance risks should I review before accepting this agreement?" 
+]
 };
 
-function QuestionCard({ selectedContract }) {
+function QuestionCard({
+  selectedContract,
+  uploadedContract,
+}) {
   const navigate = useNavigate();
 
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const examples = sampleQuestions[selectedContract] || [];
+
+const examples =
+  uploadedContract
+    ? []
+    : sampleQuestions[selectedContract] || [];
+  
 
   async function handleAnalyze() {
     if (!question.trim()) {
@@ -41,10 +53,17 @@ function QuestionCard({ selectedContract }) {
     try {
       setLoading(true);
 
-      const result = await analyzeContract(
-        question,
-        selectedContract
-      );
+      const contract = uploadedContract || selectedContract;
+
+if (!contract) {
+    alert("Please select a sample contract or upload a PDF.");
+    return;
+}
+
+const result = await analyzeContract(
+    question,
+    contract
+);
 
       navigate("/results", {
         state: result,
@@ -57,6 +76,7 @@ function QuestionCard({ selectedContract }) {
       setLoading(false);
     }
   }
+
 
   return (
     <section className="question-section">
@@ -72,7 +92,7 @@ function QuestionCard({ selectedContract }) {
       <p className="question-description">
         Type your own question or choose a suggestion below to begin analysis.
       </p>
-
+      
       <div className="search-box">
 
         <Search size={22} />
@@ -86,32 +106,29 @@ function QuestionCard({ selectedContract }) {
 
       </div>
 
-      <p className="suggestion-title">
-        SUGGESTED QUESTIONS
-      </p>
+      {examples.length > 0 && (
+  <>
+    <p className="suggestion-title">
+      SUGGESTED QUESTIONS
+    </p>
 
-      <div className="question-list">
+    <div className="question-list">
+      {examples.map((item) => (
+        <button
+          key={item}
+          className={`question-item ${
+            question === item ? "active" : ""
+          }`}
+          onClick={() => setQuestion(item)}
+        >
+          <span>{item}</span>
 
-        {examples.map((item) => (
-
-          <button
-            key={item}
-            className={`question-item ${
-              question === item ? "active" : ""
-            }`}
-            onClick={() => setQuestion(item)}
-          >
-
-            <span>{item}</span>
-
-            <ChevronRight size={18} />
-
-          </button>
-
-        ))}
-
-      </div>
-
+          <ChevronRight size={18} />
+        </button>
+      ))}
+    </div>
+  </>
+)}
       <button
         className="analyze-btn"
         disabled={loading}
@@ -123,7 +140,24 @@ function QuestionCard({ selectedContract }) {
         {loading ? "Analyzing..." : "Analyze Contract"}
 
       </button>
+     {loading && (
+  <div className="analysis-status">
 
+    <div className="analysis-spinner"></div>
+
+    <div>
+
+      <strong>AI is reviewing your contract...</strong>
+
+      <p>
+        Analyzing legal clauses, evaluating risks, and preparing your report.
+This usually takes 3–5 seconds.
+      </p>
+
+    </div>
+
+  </div>
+)}
     </section>
   );
 }

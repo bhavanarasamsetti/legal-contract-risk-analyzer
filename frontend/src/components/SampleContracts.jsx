@@ -1,4 +1,5 @@
 import "../styles/sampleContracts.css";
+import UploadPdfCard from "./UploadPdfCard";
 
 const contracts = [
   {
@@ -17,9 +18,8 @@ const contracts = [
   },
   {
     id: "atlassian_customer_dpa.pdf",
-    title: "Atlassian Customer DPA",
-    description:
-      "Enterprise-grade data protection agreement covering compliance and security incidents.",
+    title: "Enterprise DPA Sample",
+    description: "Enterprise-grade data processing agreement for GDPR compliance.",
     tags: ["Security", "Compliance", "Privacy"],
   },
 ];
@@ -27,6 +27,10 @@ const contracts = [
 function SampleContracts({
   selectedContract,
   setSelectedContract,
+  uploadedContract,
+  setUploadedContract,
+  uploading,
+  setUploading,
 }) {
   return (
     <section className="contracts-section">
@@ -68,14 +72,23 @@ function SampleContracts({
 
             </div>
 
-            <button
-              onClick={() => setSelectedContract(contract.id)}
-              className={
-                selectedContract === contract.id
-                  ? "selected-button"
-                  : ""
-              }
-            >
+         <button
+  disabled={uploading}
+  onClick={() => {
+
+    if (uploading) return;
+
+    setSelectedContract(contract.id);
+
+    setUploadedContract(null);
+
+  }}
+  className={
+    selectedContract === contract.id
+      ? "selected-button"
+      : ""
+  }
+>
               {selectedContract === contract.id
                 ? "✓ Using This Sample"
                 : "Use Sample"}
@@ -84,7 +97,13 @@ function SampleContracts({
           </div>
 
         ))}
-
+  <UploadPdfCard
+  uploadedContract={uploadedContract}
+  setUploadedContract={setUploadedContract}
+  setSelectedContract={setSelectedContract}
+  uploading={uploading}
+  setUploading={setUploading}
+/>
       </div>
 
     </section>

@@ -14,24 +14,20 @@ function Navbar() {
             LexAI
           </span>
 
-          <span className="beta-badge">
-            BETA
-          </span>
+         
         </div>
 
        <div className="navbar-links">
 
-  <a href="#">
-    Docs
-  </a>
+  <a href="/about">About</a>
 
   <a
-    href="https://github.com/"
-    target="_blank"
-    rel="noreferrer"
-  >
-    GitHub
-  </a>
+href="https://github.com/bhavanarasamsetti/legal-contract-risk-analyzer"
+target="_blank"
+rel="noreferrer"
+>
+GitHub ↗
+</a>
 
 </div>
       </div>

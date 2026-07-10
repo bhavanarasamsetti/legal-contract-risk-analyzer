@@ -186,7 +186,7 @@ class RagEvaluator:
                         question=sample.question,
                         ground_truth=sample.ground_truth,
                         expected_document=sample.expected_document,
-                        answer=llm_response["content"],
+                        answer=llm_response["answer"],
                         contexts=contexts,
                         retrieved_documents=retrieved_documents,
                         document_hit=document_hit,
@@ -194,6 +194,9 @@ class RagEvaluator:
                     )
                 )
             except Exception as exc:
+                print(f"\nERROR on question:\n{sample.question}")
+                print(exc)
+
                 records.append(
                     SampleEvalRecord(
                         question=sample.question,
@@ -261,10 +264,9 @@ def _compute_ragas_metrics(records: list[SampleEvalRecord]) -> dict[str, float]:
             faithfulness,
         )
     except ImportError as exc:
-        raise RuntimeError(
-            "RAGAS evaluation requires optional dependencies. "
-            "Install with: pip install ragas datasets langchain-openai"
-        ) from exc
+        print("\nREAL IMPORT ERROR:")
+        print(repr(exc))
+        raise
 
     from app.config import get_config
 

@@ -37,10 +37,16 @@ class Config:
     langfuse_secret_key: str = field(
         default_factory=lambda: os.getenv("LANGFUSE_SECRET_KEY", "")
     )
-
+    langfuse_base_url: str = field(
+    default_factory=lambda: os.getenv(
+        "LANGFUSE_BASE_URL",
+        "https://cloud.langfuse.com",
+    )
+    )
     huggingface_token: str = field(
         default_factory=lambda: os.getenv("HF_TOKEN", "")
     )
+
 
     def __post_init__(self) -> None:
         """Validate that all required environment variables are present."""

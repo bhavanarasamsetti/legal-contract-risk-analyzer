@@ -14,26 +14,34 @@ function SourceDocuments({ sources = [] }) {
 
       </div>
 
-      {sources.map((source) => (
+      {sources.length > 0 && (
+
+        <p className="source-file">
+
+          {sources[0].document_name}
+
+        </p>
+
+      )}
+
+      {sources.map((doc, index) => (
 
         <div
+          key={index}
           className="source-item"
-          key={source.chunk_id}
         >
 
           <strong>
 
-            {source.document_name}
+            Section {doc.section}
 
           </strong>
 
           <small>
 
-            Section {source.section}
+            Page{doc.pages.length > 1 ? "s" : ""}{" "}
 
-            {" • "}
-
-            Pages {source.pages.join(", ")}
+            {doc.pages.join(", ")}
 
           </small>
 

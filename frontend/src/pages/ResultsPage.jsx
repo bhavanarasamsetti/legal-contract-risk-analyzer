@@ -3,10 +3,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
 import RiskScoreCard from "../components/RiskScoreCard";
-import QuestionInfo from "../components/QuestionInfo";
+
 import SourceDocuments from "../components/SourceDocuments";
 import DetailedAnalysis from "../components/DetailedAnalysis";
-import ReferencedClauses from "../components/ReferencedClauses";
+
 import AISummaryCard from "../components/AISummaryCard";
 
 import "../styles/results.css";
@@ -20,11 +20,8 @@ function ResultsPage() {
   const result = location.state;
 
   if (!result) {
-
     navigate("/");
-
     return null;
-
   }
 
   return (
@@ -33,12 +30,23 @@ function ResultsPage() {
 
       <main className="results-page">
 
-        <div
-          className="back-link"
-          onClick={() => navigate("/")}
-        >
-          ← Back to Contracts
-        </div>
+       <div className="results-actions">
+
+  <div
+    className="back-link"
+    onClick={() => navigate("/")}
+  >
+    ← Back to Contracts
+  </div>
+
+  <button
+    className="new-analysis-btn"
+    onClick={() => navigate("/")}
+  >
+    + Analyze Another Contract
+  </button>
+
+</div>
 
         <div className="results-header">
 
@@ -46,20 +54,7 @@ function ResultsPage() {
             Contract Analysis Results
           </h1>
 
-          <p>
-
-            Analysis of
-
-            <strong>
-
-              {" "}
-
-              {result.contract_name ||
-                "Employment Agreement"}
-
-            </strong>
-
-          </p>
+         
 
         </div>
 
@@ -67,11 +62,13 @@ function ResultsPage() {
 
           <div className="left-column">
 
-            <RiskScoreCard />
+            <RiskScoreCard
+    score={result.risk_score}
+    level={result.risk_level}
+    confidence={result.confidence}
+/>
 
-            <QuestionInfo
-              question={result.question}
-            />
+           
 
             <SourceDocuments
               sources={result.sources}
@@ -85,11 +82,16 @@ function ResultsPage() {
               answer={result.answer}
             />
 
-            <DetailedAnalysis />
+           {result.recommendations &&
+ result.recommendations.length > 0 && (
 
-            <ReferencedClauses
-              sources={result.sources}
-            />
+    <DetailedAnalysis
+        findings={result.recommendations}
+    />
+
+)}
+
+          
 
           </div>
 

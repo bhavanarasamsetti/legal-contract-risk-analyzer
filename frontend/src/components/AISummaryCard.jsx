@@ -1,6 +1,12 @@
 import { Sparkles } from "lucide-react";
 
 function AISummaryCard({ answer }) {
+
+  const cleanedAnswer = answer
+    .replace(/\*\*/g, "")        
+    .replace(/\[\d+\]/g, "")     
+    .replace(/\b\d+\.\s/g, ""); 
+
   return (
     <div className="summary-card">
 
@@ -10,12 +16,12 @@ function AISummaryCard({ answer }) {
           <Sparkles size={18} />
         </div>
 
-        <span>AI SUMMARY</span>
+        <span>EXECUTIVE SUMMARY</span>
 
       </div>
 
       <p className="summary-text">
-        {answer}
+        {cleanedAnswer}
       </p>
 
     </div>

@@ -26,10 +26,12 @@ Typical usage::
     print(response["content"])
 """
 
+import json
 import time
 from typing import TypedDict
 
 import tiktoken
+from langfuse.openai import OpenAI
 from openai import (
     APIConnectionError,
     APITimeoutError,
@@ -42,6 +44,7 @@ from openai import (
 
 from app.config import get_config
 from app.vector_store import QueryResult
+from app.langfuse_client import langfuse
 
 # ---------------------------------------------------------------------------
 # Module-level constants
@@ -51,23 +54,104 @@ from app.vector_store import QueryResult
 # role, grounding constraint, citation requirement, conflict-detection rule,
 # and uncertainty-handling behaviour.  Can be overridden via the constructor.
 _DEFAULT_SYSTEM_PROMPT = """\
-You are a legal contract analysis assistant. Your task is to answer questions \
-about legal contracts based exclusively on the contract excerpts provided to you.
+You are a senior legal contract risk analyst with expertise in employment law, \
+GDPR, commercial contracts, and data protection agreements.
 
-Rules:
-1. Base your answer ONLY on the provided contract excerpts. Do not draw on \
-external legal knowledge beyond what the excerpts explicitly contain.
-2. Cite the source number (e.g. [1], [2]) whenever you refer to a specific excerpt.
-3. If the answer cannot be determined from the provided excerpts, state this \
-clearly: "The provided excerpts do not contain sufficient information to answer \
-this question."
-4. If excerpts from different documents contain conflicting terms, identify the \
-conflict explicitly and name both documents.
-5. Be precise and factual. Do not speculate about intent or make legal judgements \
-beyond what is stated in the text.
-6. Keep your response focused and directly relevant to the question asked.\
+You MUST answer ONLY using the supplied contract excerpts.
+You MUST return ONLY valid JSON with no markdown, no code fences, no explanation.
+
+{
+  "answer": "Direct answer to the user's specific question in 2-3 concise sentences.",
+  "risk_score": 0,
+  "risk_level": "",
+  "confidence": 0,
+  "findings": [
+    {
+      "severity": "",
+      "title": "",
+      "description": ""
+    }
+  ],
+  "recommendations": [
+    {
+      "severity": "",
+      "title": "",
+      "description": ""
+    }
+  ]
+}
+
+RULES:
+
+1. answer must directly address the user's specific question using only the retrieved excerpts.
+   Write 2-3 concise sentences. Never say "based on the excerpts" or "the document states."
+   Speak directly as the expert.
+
+2. Base every conclusion ONLY on the supplied contract excerpts.
+   Never invent clauses, obligations, risks, or legal interpretations not present in the evidence.
+
+3. Do not mention page numbers, section numbers, or citations inside the answer field.
+
+4. risk_score must be an integer between 0 and 100.
+
+5. Calculate the overall risk_score by considering all of these factors. Legal liability and regulatory exposure should have greater influence than wording or administrative issues:
+   - Legal liability exposure (25%)
+   - Financial and penalty exposure (20%)
+   - GDPR and regulatory compliance gaps (20%)
+   - Missing critical protections for the weaker party (20%)
+   - Ambiguous or one-sided contractual language (15%)
+
+6. Return realistic non-rounded scores: 23, 47, 61, 73, 88.
+   NEVER return multiples of 10 unless genuinely correct.
+   Forbidden artificial scores: 20, 30, 40, 50, 60, 70, 80, 90, 100.
+
+7. risk_level must EXACTLY match the calculated risk_score using ONLY this scale:
+   - 0–39  → "Low"
+   - 40–69 → "Medium"
+   - 70–100 → "High"
+
+8. confidence must be an integer between 0 and 100.
+   Calculate using these factors:
+   - High confidence (75–95): Multiple relevant chunks directly answer the question
+   - Medium confidence (50–74): Some relevant chunks but gaps exist
+   - Low confidence (25–49): Few relevant chunks, question only partially answerable
+   - Very low (0–24): Retrieved chunks do not address the question at all
+
+9. findings — return maximum 5.
+   You MUST return a realistic severity distribution:
+   - At least 1 HIGH if the contract contains any significant legal or regulatory risk
+   - At least 1 LOW for standard boilerplate or minor clauses
+   - NEVER return all findings at the same severity level
+   - Assign severity based on actual legal impact from the evidence only
+
+10. recommendations — return maximum 5.
+    - Each recommendation must correspond to a finding at the same severity level
+    - Recommendations must be specific practical actions to take before signing
+
+11. Severity guidelines — apply to BOTH findings and recommendations:
+
+    HIGH
+    - Significant legal liability or litigation risk
+    - Major financial or penalty exposure
+    - GDPR or regulatory violations
+    - Missing critical contractual protections
+    - Serious data privacy or security risks
+
+    MEDIUM
+    - Clauses that should be negotiated
+    - Moderate financial or operational risk
+    - Ambiguous contractual language
+    - Business continuity concerns
+
+    LOW
+    - Standard boilerplate clauses
+    - Administrative improvements
+    - Minor wording clarifications
+    - Low-impact changes
+
+12. Return ONLY valid JSON.
+    No markdown. No code fences. No text before or after the JSON.
 """
-
 # Seconds to wait before the first retry.  Each subsequent attempt doubles
 # this value (exponential backoff).
 _INITIAL_BACKOFF_SECONDS = 2
@@ -106,11 +190,24 @@ class LLMResponse(TypedDict):
         total_tokens: Sum of ``prompt_tokens`` and ``completion_tokens``.
     """
 
-    content: str
-    model: str
-    prompt_tokens: int
-    completion_tokens: int
-    total_tokens: int
+answer: str
+
+risk_score: float
+
+risk_level: str
+confidence: int
+
+findings: list[dict]
+
+recommendations: list[dict]
+
+model: str
+
+prompt_tokens: int
+
+completion_tokens: int
+
+total_tokens: int
 
 
 # ---------------------------------------------------------------------------
@@ -401,11 +498,14 @@ class LegalContractLLM:
 
         for attempt in range(1, _MAX_ATTEMPTS + 1):
             try:
+               
+                
                 response = self._client.chat.completions.create(
                     model=self._model,
                     messages=messages,  # type: ignore[arg-type]
                     temperature=self._temperature,
                     max_completion_tokens=self._max_tokens,
+                    response_format={"type": "json_object"},
                 )
 
                 choice = response.choices[0]
@@ -420,8 +520,18 @@ class LegalContractLLM:
                     raise RuntimeError("Model returned an empty response.")
 
                 usage = response.usage
+
+                result = json.loads(content)
+               
+
+               
                 return LLMResponse(
-                    content=content,
+                    answer=result["answer"],
+                    risk_score=result["risk_score"],
+                    risk_level=result["risk_level"],
+                    confidence=result["confidence"],
+                    findings=result["findings"],
+                    recommendations=result["recommendations"],
                     model=response.model,
                     prompt_tokens=usage.prompt_tokens if usage else 0,
                     completion_tokens=usage.completion_tokens if usage else 0,
@@ -438,6 +548,7 @@ class LegalContractLLM:
                 APIConnectionError,
                 InternalServerError,
             ) as exc:
+               
                 last_exc = exc
                 if attempt < _MAX_ATTEMPTS:
                     time.sleep(backoff)

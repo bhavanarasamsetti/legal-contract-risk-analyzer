@@ -1,30 +1,105 @@
 {
   "version": 1,
-  "description": "Manual evaluation set for the legal contract RAG pipeline. Ground-truth answers are reference summaries used by RAGAS; they should be updated as the corpus evolves.",
+  "description": "Manual evaluation dataset for the LexAI Legal Contract Risk Analyzer.",
   "samples": [
     {
-      "question": "What are the data processor's obligations regarding personal data breach notification?",
-      "ground_truth": "The data processor must notify the data controller without undue delay after becoming aware of a personal data breach, providing sufficient information for the controller to meet its regulatory obligations.",
-      "expected_document": "data_processing_agreement.pdf"
-    },
-    {
-      "question": "What confidentiality obligations apply to customer data?",
-      "ground_truth": "The parties must protect confidential information and not disclose it to third parties except as permitted by the agreement or required by law.",
-      "expected_document": "atlassian_customer_dpa.pdf"
-    },
-    {
-      "question": "What are the termination or notice period requirements in the employment agreement?",
-      "ground_truth": "The employment relationship may be terminated subject to the notice periods and conditions specified in the termination provisions of the agreement.",
+      "question": "Summarize this employment agreement.",
+      "ground_truth": "The agreement defines employment terms, confidentiality obligations, termination conditions, and employee responsibilities.",
       "expected_document": "employment_agreement.pdf"
     },
     {
-      "question": "What limitations of liability apply to the service provider?",
-      "ground_truth": "The agreement caps or excludes certain categories of liability, limiting the service provider's financial exposure for breaches or damages except where liability cannot be limited by law.",
+      "question": "What confidentiality obligations must the employee follow?",
+      "ground_truth": "The employee must protect confidential information during and after employment and may not disclose it except where permitted.",
+      "expected_document": "employment_agreement.pdf"
+    },
+    {
+      "question": "What are the biggest legal risks before signing this employment agreement?",
+      "ground_truth": "The agreement contains confidentiality, non-compete, assignment, and termination provisions that should be reviewed before signing.",
+      "expected_document": "employment_agreement.pdf"
+    },
+    {
+      "question": "What are the termination conditions?",
+      "ground_truth": "Termination must follow the notice periods and contractual termination provisions described in the agreement.",
+      "expected_document": "employment_agreement.pdf"
+    },
+    {
+      "question": "Does this agreement contain any clauses that restrict future employment?",
+      "ground_truth": "Certain confidentiality and competition-related clauses may restrict future professional activities.",
+      "expected_document": "employment_agreement.pdf"
+    },
+    {
+      "question": "Summarize this Data Processing Agreement.",
+      "ground_truth": "The agreement defines responsibilities for processing personal data, GDPR compliance, security obligations, and breach notification.",
       "expected_document": "data_processing_agreement.pdf"
     },
     {
-      "question": "What sub-processing or onward transfer restrictions apply?",
-      "ground_truth": "The processor may only engage sub-processors with prior authorisation or general written authorisation from the controller, and must impose equivalent data protection obligations on sub-processors.",
+      "question": "What GDPR obligations are included?",
+      "ground_truth": "The agreement requires GDPR compliance, implementation of security measures, and lawful processing of personal data.",
+      "expected_document": "data_processing_agreement.pdf"
+    },
+    {
+      "question": "What are the biggest legal risks before signing this agreement?",
+      "ground_truth": "Potential risks include regulatory obligations, liability allocation, and data protection responsibilities.",
+      "expected_document": "data_processing_agreement.pdf"
+    },
+    {
+      "question": "What obligations apply after a personal data breach?",
+      "ground_truth": "The processor must notify the controller without undue delay after becoming aware of a personal data breach.",
+      "expected_document": "data_processing_agreement.pdf"
+    },
+    {
+      "question": "Who is responsible for GDPR compliance?",
+      "ground_truth": "Both parties have responsibilities, with the processor required to process data according to the controller's instructions and GDPR.",
+      "expected_document": "data_processing_agreement.pdf"
+    },
+    {
+      "question": "Summarize this Data Processing Addendum.",
+      "ground_truth": "The addendum establishes GDPR responsibilities, security measures, confidentiality obligations, and international data transfer requirements.",
+      "expected_document": "atlassian_customer_dpa.pdf"
+    },
+    {
+      "question": "What customer data protection responsibilities are included?",
+      "ground_truth": "The agreement requires appropriate technical and organizational measures to protect customer data and comply with GDPR.",
+      "expected_document": "atlassian_customer_dpa.pdf"
+    },
+    {
+      "question": "What security obligations are required?",
+      "ground_truth": "The agreement requires appropriate technical and organizational measures to ensure the security of personal data.",
+      "expected_document": "atlassian_customer_dpa.pdf"
+    },
+    {
+      "question": "What are the biggest legal risks before signing this Data Processing Addendum?",
+      "ground_truth": "Potential risks include liability limitations, compliance obligations, security responsibilities, and regulatory exposure.",
+      "expected_document": "atlassian_customer_dpa.pdf"
+    },
+    {
+      "question": "What rules apply to sub-processors?",
+      "ground_truth": "Sub-processors may only be engaged under the contractual conditions and must be subject to equivalent data protection obligations.",
+      "expected_document": "atlassian_customer_dpa.pdf"
+    },
+    {
+      "question": "What liability limitations are included?",
+      "ground_truth": "The agreement limits liability in certain situations while preserving liability where required by applicable law.",
+      "expected_document": "atlassian_customer_dpa.pdf"
+    },
+    {
+      "question": "How is confidential information protected?",
+      "ground_truth": "Confidential information must be protected from unauthorized disclosure except where disclosure is legally required.",
+      "expected_document": "atlassian_customer_dpa.pdf"
+    },
+    {
+      "question": "What compliance responsibilities are defined?",
+      "ground_truth": "The agreement assigns responsibilities for GDPR compliance, data processing, and security safeguards.",
+      "expected_document": "data_processing_agreement.pdf"
+    },
+    {
+      "question": "Does the employment agreement include notice periods?",
+      "ground_truth": "The agreement specifies notice periods and conditions for termination of employment.",
+      "expected_document": "employment_agreement.pdf"
+    },
+    {
+      "question": "How are personal data transfers governed?",
+      "ground_truth": "The agreement requires personal data transfers to comply with GDPR and applicable data protection laws.",
       "expected_document": "atlassian_customer_dpa.pdf"
     }
   ]

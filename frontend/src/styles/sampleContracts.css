@@ -6,14 +6,14 @@
 
     max-width: 1280px;
 
-    margin: 20px auto 70px;
+    margin: 10px auto 35px;
 
     padding: 0 32px;
 }
 
 .contracts-title {
 
-    font-size: 14px;
+    font-size: 12px;
 
     letter-spacing: 2px;
 
@@ -21,14 +21,14 @@
 
     color: #6B7280;
 
-    margin-bottom: 24px;
+    margin-bottom: 14px;
 }
 
 .contracts-grid {
 
     display: grid;
 
-    grid-template-columns: repeat(3,1fr);
+    grid-template-columns: repeat(4,1fr);
 
     gap: 24px;
 }
@@ -43,21 +43,19 @@
 
     border-radius: 20px;
 
-    padding: 28px;
+    padding: 18px;
 
     display: flex;
 
     flex-direction: column;
 
-    min-height: 340px;
+    min-height: 240px;
 
     transition: .25s;
 }
 
-.contract-card:hover {
-
+.contract-card:hover:not(.active) {
     transform: translateY(-3px);
-
     box-shadow: 0 14px 35px rgba(0,0,0,.06);
 }
 
@@ -91,9 +89,9 @@
 
 .file-icon {
 
-    width: 48px;
+    width: 40px;
 
-    height: 48px;
+    height: 40px;
 
     border-radius: 14px;
 
@@ -105,31 +103,31 @@
 
     justify-content: center;
 
-    font-size: 22px;
+    font-size: 18px;
 
-    margin-bottom: 22px;
+    margin-bottom: 14px;
 }
 
 .contract-card h2 {
 
-    font-size: 24px;
+    font-size: 18px;
 
     line-height: 1.25;
 
     color: #111827;
 
-    margin-bottom: 14px;
+    margin-bottom: 10px;
 }
 
 .contract-card p {
 
     color: #6B7280;
 
-    font-size: 15px;
+    font-size: 13px;
 
-    line-height: 1.65;
+    line-height: 1.45;
 
-    margin-bottom: 22px;
+    margin-bottom: 14px;
 }
 
 .tags {
@@ -149,20 +147,20 @@
 
     color: #374151;
 
-    padding: 6px 12px;
+    padding: 5px 10px;
 
     border-radius: 999px;
 
-    font-size: 12px;
+    font-size: 11px;
 
     font-weight: 600;
 }
 
 .contract-card button {
 
-    margin-top: 28px;
+    margin-top: 18px;
 
-    height: 48px;
+    height: 38px;
 
     border-radius: 12px;
 
@@ -172,7 +170,7 @@
 
     color: #111827;
 
-    font-size: 15px;
+    font-size: 13px;
 
     font-weight: 600;
 
@@ -193,4 +191,8 @@
     color: white !important;
 
     border: none !important;
+}
+.contract-card button:disabled{
+    opacity: 0.6;
+    cursor: not-allowed;
 }

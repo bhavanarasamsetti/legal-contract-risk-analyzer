@@ -25,7 +25,7 @@ Typical usage::
 
 from app.embeddings import EmbeddingGenerator
 from app.vector_store import QueryResult, VectorStore
-
+from app.langfuse_client import langfuse
 
 class LegalRetriever:
     """Performs semantic similarity retrieval over ingested legal contract chunks.
@@ -134,17 +134,29 @@ class LegalRetriever:
             >>> results[0]["score"] >= results[-1]["score"]
             True
         """
-        if not query or not query.strip():
-            raise ValueError("query must not be empty or blank.")
-        if top_k < 1:
-            raise ValueError(f"top_k must be at least 1, got {top_k}.")
+        with langfuse.start_as_current_observation(
+            name="Hybrid Retrieval",
+            as_type="retriever",
+            input={
+                "query": query,
+                "top_k": top_k,
+            },
+        ) as retrieval:
+            if not query or not query.strip():
+                raise ValueError("query must not be empty or blank.")
+            if top_k < 1:
+                raise ValueError(f"top_k must be at least 1, got {top_k}.")
 
-        query_vector = self._embedder.embed(query)
+            query_vector = self._embedder.embed(query)
 
-        results = self._store.query(
-            vector=query_vector,
-            top_k=top_k,
-            filter=filter,
-        )
-
-        return results
+            results = self._store.query(
+                vector=query_vector,
+                top_k=top_k,
+                filter=filter,
+            )
+            retrieval.update(
+                output={
+                  "retrieved_chunks": len(results),
+                }
+            )
+            return results
