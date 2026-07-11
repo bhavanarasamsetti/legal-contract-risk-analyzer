@@ -154,3 +154,23 @@
     color:#9CA3AF;
     font-size:15px;
 }
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  margin-bottom: 24px;
+
+  background: transparent;
+  border: none;
+
+  color: #5b5ce2;
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.back-button:hover {
+  text-decoration: underline;
+}

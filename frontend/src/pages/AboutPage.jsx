@@ -1,9 +1,18 @@
 import "../styles/about.css";
+import { useNavigate } from "react-router-dom";
 
 function AboutPage() {
+
+  const navigate = useNavigate();
+
   return (
     <main className="about-page">
-
+  <button
+    className="back-button"
+    onClick={() => navigate("/")}
+  >
+    ← Back
+  </button>
       <section className="about-hero">
 
         <h1>About LexAI</h1>
