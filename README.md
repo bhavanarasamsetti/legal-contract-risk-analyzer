@@ -1,4 +1,19 @@
 # ⚖️ LexAI – AI-Powered Legal Contract Risk Analyzer
+AI-powered legal contract analysis platform using Hybrid RAG, OpenAI GPT-4o-mini, Pinecone, FastAPI, React, Google Cloud Run, and Vercel.
+
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green)
+
+![React](https://img.shields.io/badge/React-Frontend-61DAFB)
+
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o--mini-black)
+
+![Pinecone](https://img.shields.io/badge/Pinecone-VectorDB-purple)
+
+![Cloud Run](https://img.shields.io/badge/Google%20Cloud-Cloud%20Run-blue)
+
+![Vercel](https://img.shields.io/badge/Vercel-Deployed-black)
 
 An end-to-end **Retrieval-Augmented Generation (RAG)** application that analyzes legal contracts, identifies potential legal risks, answers contract-specific questions with evidence-backed responses, and provides actionable recommendations before signing.
 
@@ -6,15 +21,20 @@ LexAI combines **Hybrid Retrieval (BM25 + Vector Search)**, **OpenAI GPT-4o-mini
 
 ---
 
-## Demo
 
-**Live Demo:** Coming Soon (Hugging Face Spaces)
+# 🚀 Live Demo
 
-**Frontend:** React
-
-**Backend:** FastAPI
-
+| Resource | Link |
+|----------|------|
+| 🌐 Live Application | https://legal-contract-risk-analyzer-blue.vercel.app |
+| ⚙️ Backend API | https://lexai-backend-610039392906.europe-west3.run.app |
+| 📚 Swagger Docs | https://lexai-backend-610039392906.europe-west3.run.app/docs |
+| 💻 GitHub Repository | https://github.com/bhavanarasamsetti/legal-contract-risk-analyzer |
 ---
+
+<p align="center">
+  <img src="screenshots/home.png" width="1000"/>
+</p>
 
 ## Project Overview
 
@@ -45,7 +65,7 @@ The system also performs legal risk assessment by generating:
 - Pinecone Vector Database
 - GPT-4o-mini grounded contract analysis
 - Executive contract summaries
-- AI-generated legal risk scoring
+- AI-assisted legal risk scoring
 - Risk level classification
 - Confidence estimation
 - Key findings extraction
@@ -58,44 +78,13 @@ The system also performs legal risk assessment by generating:
 
 ---
 
+
 # System Architecture
 
-> **(Insert Architecture Diagram Here)**
+<p align="center">
+  <img src="screenshots/system-architecture.png" width="1000"/>
+</p>
 
-Recommended diagram:
-
-```
-PDF Contract
-      │
-      ▼
-Text Extraction
-      │
-      ▼
-Semantic Chunking
-      │
-      ▼
-OpenAI Embeddings
-      │
-      ▼
-Pinecone Vector Database
-      │
-      │
-BM25 Keyword Search
-      │
-      ▼
-Hybrid Retrieval
-      │
-      ▼
-GPT-4o-mini
-      │
-      ▼
-Structured Risk Analysis
-      │
-      ▼
-React Dashboard
-```
-
----
 
 # System Workflow
 
@@ -123,7 +112,7 @@ React Dashboard
 
 | Layer | Technology |
 |--------|------------|
-| Frontend | React |
+| Frontend | React + Vite |
 | Backend | FastAPI |
 | Language Model | OpenAI GPT-4o-mini |
 | Embeddings | text-embedding-3-small |
@@ -133,6 +122,8 @@ React Dashboard
 | Evaluation | RAGAS |
 | Monitoring | LangFuse |
 | Programming Language | Python |
+| Deployment | Google Cloud Run |
+| Frontend Hosting | Vercel |
 
 ---
 
@@ -233,12 +224,6 @@ Tracked metrics include:
 
 # Application Screenshots
 
-## Home Page
-
-<p align="center">
-  <img src="screenshots/home.png" width="900"/>
-</p>
-
 ---
 
 ## AI Analysis
@@ -265,11 +250,7 @@ Tracked metrics include:
 
 ---
 
-## LangFuse Dashboard
 
-<p align="center">
-  <img src="screenshots/langfuse-dashboard.png" width="900"/>
-</p>
 
 ## API Endpoints
 
@@ -306,7 +287,7 @@ Accepts a user question and returns:
 Clone the repository:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/legal-contract-risk-analyzer.git
+git clone https://github.com/bhavanarasamsetti/legal-contract-risk-analyzer.git
 
 cd legal-contract-risk-analyzer
 ```
@@ -319,13 +300,13 @@ conda create -n legal-rag python=3.11
 conda activate legal-rag
 ```
 
-Install backend dependencies:
+Backend
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Install frontend dependencies:
+Frontend
 
 ```bash
 cd frontend
@@ -350,7 +331,7 @@ LANGFUSE_SECRET_KEY=
 
 LANGFUSE_PUBLIC_KEY=
 
-LANGFUSE_HOST=https://cloud.langfuse.com
+LANGFUSE_BASE_URL=https://cloud.langfuse.com
 ```
 
 ---
@@ -360,7 +341,7 @@ LANGFUSE_HOST=https://cloud.langfuse.com
 Backend
 
 ```bash
-uvicorn app.main:app --reload
+uvicorn app.services.api:app --reload
 ```
 
 Frontend
@@ -373,7 +354,7 @@ npm run dev
 
 ---
 
-# Future Improvements
+# Possible Future Enhancements
 
 - Multi-document comparison
 - PDF clause highlighting
@@ -394,10 +375,11 @@ This project is licensed under the MIT License.
 
 # Acknowledgements
 
+- FastAPI
+- LangChain
+- LangFuse
 - OpenAI
 - Pinecone
-- LangChain
-- FastAPI
-- React
-- LangFuse
 - RAGAS
+- React
+
