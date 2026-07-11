@@ -7,10 +7,11 @@ ENV PYTHONUNBUFFERED=1
 
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-EXPOSE 8080
-
-CMD ["uvicorn", "app.services.api:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD exec uvicorn app.services.api:app \
+    --host 0.0.0.0 \
+    --port ${PORT:-8080}
